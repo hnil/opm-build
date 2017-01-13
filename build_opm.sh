@@ -1,6 +1,7 @@
 #!/bin/bash
 BUILD_ERT_EIGEN=false
 CLEAN_BUILD=true
+CMAKE_FILE=opm-building/debugopts_mpi.cmake
 if [ ! -d opm-src ]; then
     echo "opm-src do not exit"
     exit 1
@@ -49,20 +50,21 @@ for r in $repos; do
     if [ -d "$r" ]; then
 	cd "${r}"
     else
-       echo " do not exit ${r} exist"
-       exit 1
+	echo " do not exit ${r} exist"
+	exit 1
     fi
     if( [ ! -d build ]); then
-      mkdir build
+	mkdir build
     fi
     if [ "$CLEAN_BUILD" == true ]; then
-       echo "clean build by deleting build directory"
-       rm -rf build
-       mkdir build
+	echo "clean build by deleting build directory"
+	rm -rf build
+	mkdir build
     fi  
     cd build
     if [ "$CLEAN_BUILD" == true ]; then
-       cmake -DUSE_MPI=1 ..
+	cmake -C $CMAKE_FILE
+	#cmake -DUSE_MPI=1	
     fi   
     make -j 10
     if [ $? -eq 0 ]; then
