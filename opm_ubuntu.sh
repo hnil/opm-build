@@ -29,3 +29,5 @@ sudo apt-get install libdune-common-dev libdune-geometry-dev \
 # Optional but recommended
 #sudo apt-get install g++-4.9
 #json
+# needed for parrallel build
+sudo apt-get install libtrilinos-zoltan-dev

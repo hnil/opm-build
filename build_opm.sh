@@ -1,4 +1,6 @@
 #!/bin/bash
+BUILD_ERT_EIGEN=false
+CLEAN_BUILD=false
 if [ ! -d opm-src ]; then
     echo "opm-src do not exit"
     exit 1
@@ -6,34 +8,39 @@ fi
 cd opm-src
 # to do full build with ont ert and eigen this needs to be uncommented
 
-# if [ -d ert ]; then
-#     cd ert
-#     if [ ! -d build ];then
-# 	mkdir build
-#     fi
-#     cd build   
-#     cmake ..
-#     make -j 10
-#     sudo make install
-#     cd ../../
-# else
-#     echo "opm-src exist"
-#     exit 1;
-# fi  
-# if [ -d eigen3 ]; then
-#     cd eigen3
-#     if [ ! -d build ];then
-# 	mkdir build
-#     fi
-#     cd build  
-#     cmake ..
-#     sudo make install
-#     cd ../../
-# else
-#     echo "opm-src exist"
-#     exit 1;
-# fi
+if [ "$BUILD_ERT_EIGEN" == true ]; then
+    echo "INSTALLING ERT and EIGEN"
+    if [ -d ert ]; then
+	cd ert
+	if [ ! -d build ];then
+	    mkdir build
+	fi
+	cd build   
+	cmake ..
+	make -j 10
+	sudo make install
+	cd ../../
+    else
+	echo "opm-src exist"
+	exit 1;
+    fi  
+    if [ -d eigen3 ]; then
+	cd eigen3
+	if [ ! -d build ];then
+	    mkdir build
+	fi
+	cd build  
+	cmake ..
+	sudo make install
+	cd ../../
+    else
+	echo "opm-src exist"
+	exit 1;
+    fi
 
+fi
+
+exit 1
 master_order='opm-common opm-parser opm-material opm-grid opm-output opm-core ewoms opm-simulators opm-upscaling'
 #master_order='opm-common opm-parser opm-material opm-grid opm-output opm-core ewoms opm-simulators opm-upscaling'
 
@@ -48,9 +55,14 @@ for r in $repos; do
     if( [ ! -d build ]); then
       mkdir build
     fi
-    
+    if [ "$CLEAN_BUILD" == true ] then
+       echo "clean build by deleting build directory"
+       rm -rf build
+    fi  
     cd build
-    #cmake ..
+    if [ "$CLEAN_BUILD" == true ] then
+       cmake ..
+    fi   
     make -j 10
     if [ $? -eq 0 ]; then
 	echo "compiled ${r} succesfully"
