@@ -1,6 +1,6 @@
 #!/bin/bash
 BUILD_ERT_EIGEN=false
-CLEAN_BUILD=false
+CLEAN_BUILD=true
 if [ ! -d opm-src ]; then
     echo "opm-src do not exit"
     exit 1
@@ -40,7 +40,7 @@ if [ "$BUILD_ERT_EIGEN" == true ]; then
 
 fi
 
-exit 1
+
 master_order='opm-common opm-parser opm-material opm-grid opm-output opm-core ewoms opm-simulators opm-upscaling'
 #master_order='opm-common opm-parser opm-material opm-grid opm-output opm-core ewoms opm-simulators opm-upscaling'
 
@@ -55,13 +55,14 @@ for r in $repos; do
     if( [ ! -d build ]); then
       mkdir build
     fi
-    if [ "$CLEAN_BUILD" == true ] then
+    if [ "$CLEAN_BUILD" == true ]; then
        echo "clean build by deleting build directory"
        rm -rf build
+       mkdir build
     fi  
     cd build
-    if [ "$CLEAN_BUILD" == true ] then
-       cmake ..
+    if [ "$CLEAN_BUILD" == true ]; then
+       cmake -DUSE_MPI=1 ..
     fi   
     make -j 10
     if [ $? -eq 0 ]; then
