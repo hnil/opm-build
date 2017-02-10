@@ -1,7 +1,9 @@
 #!/bin/bash
 BUILD_ERT_EIGEN=false
-CLEAN_BUILD=true
+CLEAN_BUILD=false
 CMAKE_FILE=opm-building/debugopts_mpi.cmake
+UPDATE=true
+NP=1
 if [ ! -d opm-src ]; then
     echo "opm-src do not exit"
     exit 1
@@ -16,9 +18,18 @@ if [ "$BUILD_ERT_EIGEN" == true ]; then
 	if [ ! -d build ];then
 	    mkdir build
 	fi
+	if [ "$UPDATE" == true ]; then 
+	    git pull
+	    if [ $? -eq 0 ]; then
+		echo "update ${r} succesfully"
+	    else
+		echo "update of ${r} failed"
+		exit 1;
+	    fi
+	fi
 	cd build   
 	cmake ..
-	make -j 10
+	make -j $NP
 	sudo make install
 	cd ../../
     else
@@ -29,6 +40,15 @@ if [ "$BUILD_ERT_EIGEN" == true ]; then
 	cd eigen3
 	if [ ! -d build ];then
 	    mkdir build
+	fi
+	if [ "$UPDATE" == true ]; then
+	    git pull
+	    if [ $? -eq 0 ]; then
+		echo "update ${r} succesfully"
+	    else
+		echo "update of ${r} failed"
+		exit 1;
+	    fi
 	fi
 	cd build  
 	cmake ..
@@ -60,13 +80,28 @@ for r in $repos; do
 	echo "clean build by deleting build directory"
 	rm -rf build
 	mkdir build
-    fi  
+    fi
+    if [ "$UPDATE" == true ]; then 
+	git pull
+	if [ $? -eq 0 ]; then
+	    echo "update ${r} succesfully"
+	else
+	    echo "update of ${r} failed"
+	    exit 1;
+	fi
+    fi
     cd build
     if [ "$CLEAN_BUILD" == true ]; then
-	cmake -C $CMAKE_FILE
-	#cmake -DUSE_MPI=1	
+	#cmake -C #$CMAKE_FILE
+	cmake -DUSE_MPI=1 ..
+	if [ $? -eq 0 ]; then
+	    echo "cmake ${r} succesfully"
+	else
+	    echo "cmake of ${r} failed"
+	    exit 1;
+	fi
     fi   
-    make -j 10
+    make -j $NP
     if [ $? -eq 0 ]; then
 	echo "compiled ${r} succesfully"
     else
