@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 import sys#, string
 import os#,pylab
 import getopt
@@ -24,7 +24,7 @@ def runsimulation(sim_param):
     #path.mkdir(parents=True)
     log  = open(log_file , 'w')
     # command="matlab -nodesktop -nojvm -nosplash -r \"startuplocal;runSingleIGEMSFile_py('%s','%s','%s','%s');exit\"" % (res_dir,fig_dir,sim_param[0],sim_param[1])
-    command="%s %s output_dir=%s" % (simulator,inputdir,outputdir)
+    command="nice -n 10 %s %s output_dir=%s" % (simulator,inputdir,outputdir)
     #print('Worker at process %s' % mp.current_process())
     print(' %s \n' % command)
     #log.write('Worker at process %s\n' % (mp.current_process()))
