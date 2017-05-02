@@ -4,27 +4,48 @@ import os#,pylab
 import getopt
 #import time
 from timeit import default_timer as timer
+from pathlib import Path
 #import timeit
 #import numpy
 import multiprocessing as mp
 from time import sleep
 import subprocess
+
 #from multiprocessing import Pool
 
 def runsimulation(sim_param):
     simulator = sim_param[0]
     inputdir=sim_param[1]
     outputdir=sim_param[2]
+    log_file  = '%s/logfile.log' % (outputdir) 
+    start = timer()
+    path = Path(outputdir)
+    path.mkdir(parents=True, exist_ok=True)
+    #path.mkdir(parents=True)
+    log  = open(log_file , 'w')
+    # command="matlab -nodesktop -nojvm -nosplash -r \"startuplocal;runSingleIGEMSFile_py('%s','%s','%s','%s');exit\"" % (res_dir,fig_dir,sim_param[0],sim_param[1])
     command="%s %s output_dir=%s" % (simulator,inputdir,outputdir)
-    print(mp.current_process())
-    #print(command)
-    try:
+    #print('Worker at process %s' % mp.current_process())
+    print(' %s \n' % command)
+    #log.write('Worker at process %s\n' % (mp.current_process()))
+    log.write('Command :\n')
+    log.write(' %s \n' % command)
+    a=os.system(command)
+    if(a>0):
+        print('Faild to run: %s' % (command) )
+        log.write('Faild to run: %s\n' % (command))
+    else:
+        log.write('Ok to run: %s\n' % (command))
+    end= timer()
+    print('Total time used %g\n' % (end-start))
+    log.write('Total time used %g\n' % (end-start))       
+    #try:
         #subprocess.call(command)
         #subprocess.call('ls')
-        os.system(command)
-    except OSError:
-        print('Faild to run: %s' % (command) )
-        #print myfile
+    #    os.system(command)
+    #except OSError:
+    #    print('Faild to run: %s' % (command) )
+    #    #print myfile
     
     
 
@@ -83,6 +104,8 @@ def main(argv=None):
     tab.set_cols_align(['l','c'])
     tab.set_deco(tab.HEADER | tab.VLINES)
     s = tab.draw()
+    path = Path(outputdir)
+    path.mkdir(parents=True, exist_ok=True)
     log_file  = '%s/logfile.log' % (outputdir) 
     log  = open(log_file , 'w')
     print('Run OPM for the flowing datafiles')    
