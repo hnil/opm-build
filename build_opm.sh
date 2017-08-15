@@ -1,5 +1,6 @@
 #!/bin/bash
-BUILD_ERT_EIGEN=false
+BUILD_ERT_EIGEN=false # also libecl
+#BUILD_LIBECL_EIGEN=false
 CLEAN_BUILD=false
 CMAKE_FILE=opm-building/debugopts_mpi.cmake
 UPDATE=true
@@ -13,8 +14,8 @@ cd opm-src
 
 if [ "$BUILD_ERT_EIGEN" == true ]; then
     echo "INSTALLING ERT and EIGEN"
-    if [ -d ert ]; then
-	cd ert
+    if [ -d libecl ]; then
+	cd libecl
 	if [ ! -d build ];then
 	    mkdir build
 	fi
@@ -27,15 +28,43 @@ if [ "$BUILD_ERT_EIGEN" == true ]; then
 		exit 1;
 	    fi
 	fi
-	cd build   
-	cmake ..
+	if [ "$CLEAN_BUILD" == true ]; then
+	    echo "clean build by deleting build directory"
+	    rm -rf build
+	    mkdir build
+	fi
+	cd build
+	cmake .. 
 	make -j $NP
 	sudo make install
 	cd ../../
     else
-	echo "opm-src exist"
+	echo "libecrl notexist"
 	exit 1;
-    fi  
+    fi
+    # if [ -d ert ]; then
+    # 	cd ert
+    # 	if [ ! -d build ];then
+    # 	    mkdir build
+    # 	fi
+    # 	if [ "$UPDATE" == true ]; then 
+    # 	    git pull
+    # 	    if [ $? -eq 0 ]; then
+    # 		echo "update ${r} succesfully"
+    # 	    else
+    # 		echo "update of ${r} failed"
+    # 		exit 1;
+    # 	    fi
+    # 	fi
+    # 	cd build
+    # 	cmake .. -DBUILD_PYTHON=ON -DBUILD_APPLICATIONS=ON -DCMAKE_BUILD_TYPE=Release
+    # 	make -j $NP
+    # 	sudo make install
+    # 	cd ../../
+    # else
+    # 	echo "ert not exist"
+    # 	exit 1;
+    # fi  
     if [ -d eigen3 ]; then
 	cd eigen3
 	if [ ! -d build ];then
@@ -50,12 +79,17 @@ if [ "$BUILD_ERT_EIGEN" == true ]; then
 		exit 1;
 	    fi
 	fi
+	if [ "$CLEAN_BUILD" == true ]; then
+	    echo "clean build by deleting build directory"
+	    rm -rf build
+	    mkdir build
+	fi
 	cd build  
 	cmake ..
 	sudo make install
 	cd ../../
     else
-	echo "opm-src exist"
+	echo "eigen not exist"
 	exit 1;
     fi
 
@@ -92,7 +126,8 @@ for r in $repos; do
     fi
     cd build
     if [ "$CLEAN_BUILD" == true ]; then
-	#cmake -C #$CMAKE_FILE
+	echo "Start cmake ${r}"
+	#cmake -C $CMAKE_FILE
 	cmake -DUSE_MPI=1 ..
 	if [ $? -eq 0 ]; then
 	    echo "cmake ${r} succesfully"
@@ -100,7 +135,8 @@ for r in $repos; do
 	    echo "cmake of ${r} failed"
 	    exit 1;
 	fi
-    fi   
+    fi
+    echo "Start compiling ${r}"
     make -j $NP
     if [ $? -eq 0 ]; then
 	echo "compiled ${r} succesfully"

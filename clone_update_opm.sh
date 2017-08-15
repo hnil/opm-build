@@ -22,6 +22,15 @@ for r in $repos; do
 done
 
 
+# downlod libecl
+if [ -d libecl ]; then
+    echo "ert exist"
+    cd libecl
+    git pull
+    cd ..
+else
+    git clone https://github.com/Statoil/libecl.git
+fi
 
 
 # downlod ert
